@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Jogue uma série de jogo da velha com um amigo ou contra o computador.">
+<title>Jogo da velha</title>
+<style>
+*{box-sizing:border-box}
+:root{color-scheme:dark;--bg:#171820;--panel:#22242f;--line:#3c3e4c;--x:#65cfff;--o:#ffab92;color:#faf9f3;font:1rem system-ui,sans-serif}
+body{margin:0;background:radial-gradient(ellipse at top,#272b3a,var(--bg) 55%);min-height:100svh;display:grid;place-items:center;padding:24px 16px}
+main{width:min(100%,760px)}
+h1{font-size:clamp(2.6rem,10vw,4rem);letter-spacing:-.09em;line-height:1;margin:0 0 22px}
+button{font:inherit;font-weight:650;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:10px;cursor:pointer}
+button:focus-visible{outline:3px solid white;outline-offset:3px}
+button:disabled{cursor:default}
+.menu-options,.actions,.scores{display:grid;gap:8px}
+.menu-options,.actions{grid-template-columns:1fr 1fr}
+.actions button{padding:10px 5px;font-size:.9rem}
+.game-menu{min-width:0;margin:0;padding:12px;border:1px solid var(--line);border-radius:12px}
+.game-menu legend{padding:0 6px;font-weight:650}
+.game-menu label{display:block;margin-bottom:6px;font-size:.9rem}
+.menu-options>*{min-width:0}
+#setup-screen{max-width:480px}
+#play{width:100%;padding:12px;margin-top:12px;background:var(--x);color:#10202b;border-color:var(--x)}
+.game-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.game-header .rules{margin:0}
+#menu{padding:7px 12px}
+#difficulty{margin-top:12px}
+#difficulty[hidden]{display:none}
+select{width:100%;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px;cursor:pointer}
+.scores{grid-template-columns:repeat(3,1fr);margin-top:16px}
+.score{background:#1e2029;border:1px solid var(--line);text-align:center;border-radius:10px;padding:9px 4px}
+.score span{display:block;font-size:.875rem}
+.score strong{font-size:1.65rem;overflow-wrap:anywhere}
+.x{color:var(--x)}.o{color:var(--o)}
+#status{text-align:center;margin:16px 0 10px;font-weight:650}
+#board,.layer{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(3px,1vw,10px)}
+.layer{min-width:0;margin:0;padding:clamp(3px,1vw,10px);border:1px solid var(--line);border-radius:10px}
+#board.classic{display:block;max-width:420px;margin-inline:auto}
+.layer[hidden],.layer legend[hidden]{display:none}
+.layer legend{padding:0 3px;font-size:.875rem}
+.cell{min-width:0;padding:0}
+.rules{color:#d1d2da;line-height:1.4}
+.cell{aspect-ratio:1;display:grid;place-items:center;font-size:clamp(1rem,5vw,3rem);line-height:1}
+.cell:not(:disabled):hover{background:#353949}
+.cell.win{background:#26394b;border-color:currentColor}
+.actions{margin-top:14px}
+#next{background:var(--x);color:#10202b;border-color:var(--x)}
+#next:disabled{background:var(--panel);color:#aaaab6;border-color:var(--line)}
+</style>
+<main>
+<h1>Jogo da velha</h1>
+<section id="setup-screen" aria-label="Menu do jogo">
+<form id="setup-form">
+<fieldset class="game-menu">
+<legend>Configurar jogo</legend>
+<div class="menu-options">
+<div>
+<label for="variant">Tabuleiro</label>
+<select id="variant">
+<option value="classic">Clássico (2D)</option>
+<option value="cube">3D</option>
+</select>
+</div>
+<div>
+<label for="opponent">Adversário</label>
+<select id="opponent">
+<option value="friend">Outro jogador</option>
+<option value="computer">Computador</option>
+</select>
+</div>
+</div>
+<div id="difficulty" hidden>
+<label for="level">Dificuldade do computador</label>
+<select id="level">
+<option value="easy">Fácil</option>
+<option value="normal" selected>Médio</option>
+<option value="hard">Difícil</option>
+</select>
+</div>
+</fieldset>
+<button id="play" type="submit">Jogar</button>
+</form>
+</section>
+<section id="game-screen" aria-label="Partida" hidden>
+<div class="game-header">
+<p class="rules" id="rules" tabindex="-1"></p>
+<button id="menu" type="button">Menu</button>
+</div>
+<section class="scores" aria-label="Placar da série">
+<div class="score x"><span id="x-label">Jogador 1 (X)</span><strong id="x-score">0</strong></div>
+<div class="score"><span>Empates</span><strong id="draw-score">0</strong></div>
+<div class="score o"><span id="o-label">Jogador 2 (O)</span><strong id="o-score">0</strong></div>
+</section>
+<p id="status" role="status"></p>
+<div id="board" role="group" aria-label="Tabuleiro"></div>
+<div class="actions">
+<button id="next" type="button">Próxima rodada</button>
+<button id="reset" type="button">Nova série</button>
+</div>
+</section>
+</main>
+<script>
+'use strict';
+const get = id => document.getElementById(id);
+const coordinates = Array.from({length: 27}, (_, index) => [
+  Math.floor(index / 9), Math.floor(index / 3) % 3, index % 3
+]);
+const cubeLines = [];
+for (const [start, first] of coordinates.entries()) {
+  for (const [end, last] of coordinates.entries()) {
+    if (end <= start) continue;
+    const middle = first.map((value, axis) => (value + last[axis]) / 2);
+    if (middle.every(Number.isInteger)) {
+      cubeLines.push([start, middle[0] * 9 + middle[1] * 3 + middle[2], end]);
+    }
+  }
+}
+const classicLines = cubeLines.filter(line => line[2] < 9);
+let variant = 'classic';
+let lines = classicLines;
+const layers = Array.from({length: 3}, (_, index) => {
+  const layer = document.createElement('fieldset');
+  layer.className = 'layer';
+  const title = document.createElement('legend');
+  title.textContent = 'Camada ' + (index + 1);
+  layer.append(title);
+  get('board').append(layer);
+  return layer;
+});
+let mode = 'friend';
+let level = 'normal';
+let scores;
+let board;
+let turn;
+let starter;
+let result;
+let timer;
+const cells = Array.from({length: 27}, (_, index) => {
+  const cell = document.createElement('button');
+  cell.type = 'button';
+  cell.addEventListener('click', () => {
+    if (mode !== 'computer' || turn === 'X') play(index);
+  });
+  layers[coordinates[index][0]].append(cell);
+  return cell;
+});
+
+function winningLine() {
+  return lines.find(([a,b,c]) => board[a] && board[a] === board[b] && board[b] === board[c]);
+}
+
+function playerName(mark) {
+  if (mode === 'computer') return mark === 'X' ? 'Você' : 'Computador';
+  return mark === 'X' ? 'Jogador 1' : 'Jogador 2';
+}
+
+function render() {
+  const classic = variant === 'classic';
+  get('board').classList.toggle('classic', classic);
+  get('rules').textContent = classic
+    ? 'Alinhe três marcas na horizontal, vertical ou diagonal.'
+    : 'Alinhe três marcas em linha reta, na mesma camada ou atravessando as três.';
+  for (const [index, layer] of layers.entries()) {
+    layer.hidden = classic && index > 0;
+    layer.firstElementChild.hidden = classic;
+  }
+  const winningCells = result && result !== 'draw'
+    ? new Set(lines.filter(line => line.every(index => board[index] === result)).flat())
+    : new Set();
+  const thinking = mode === 'computer' && turn === 'O';
+  for (const [index, cell] of cells.entries()) {
+    const mark = board[index] ?? '';
+    cell.textContent = mark;
+    cell.className = ['cell', mark.toLowerCase(), winningCells.has(index) ? 'win' : ''].join(' ');
+    cell.disabled = Boolean(index >= board.length || mark || result || thinking);
+    const [layer, row, column] = coordinates[index];
+    cell.setAttribute('aria-label', (classic ? 'Linha ' : 'Camada ' + (layer + 1) + ', linha ') + (row + 1) +
+      ', coluna ' + (column + 1) + ', ' + (mark || 'vazia'));
+  }
+  get('x-label').textContent = playerName('X') + ' (X)';
+  get('o-label').textContent = playerName('O') + ' (O)';
+  get('x-score').textContent = scores.X;
+  get('o-score').textContent = scores.O;
+  get('draw-score').textContent = scores.draw;
+  get('next').disabled = !result;
+  let status = thinking ? 'Computador pensando…' : 'Vez de ' + playerName(turn) + ' (' + turn + ')';
+  if (!thinking && mode === 'computer') status = 'Sua vez (X)';
+  if (result === 'draw') status = 'Deu empate!';
+  else if (result) status = playerName(result) + ' venceu!';
+  get('status').textContent = status;
+}
+
+function play(index) {
+  if (result || index >= board.length || board[index]) return;
+  board[index] = turn;
+  if (winningLine()) result = turn;
+  else if (board.every(Boolean)) result = 'draw';
+  if (result) scores[result]++;
+  else turn = turn === 'X' ? 'O' : 'X';
+  render();
+  scheduleComputerMove();
+}
+
+function scheduleComputerMove() {
+  if (!result && mode === 'computer' && turn === 'O') {
+    timer = setTimeout(() => play(computerMove()), 350);
+  }
+}
+
+function computerMove() {
+  const open = board.map((mark, index) => mark ? -1 : index).filter(index => index >= 0);
+  if (level === 'easy') return randomMove(open);
+  for (const mark of ['O', 'X']) {
+    const choice = open.find(index => {
+      board[index] = mark;
+      const wins = Boolean(winningLine());
+      board[index] = '';
+      return wins;
+    });
+    if (choice !== undefined) return choice;
+  }
+  if (level === 'normal') return randomMove(open);
+
+  return open.reduce((best, index) => {
+    board[index] = 'O';
+    const score = -evaluatePosition('X', variant === 'classic' ? 8 : 2, -Infinity, Infinity);
+    board[index] = '';
+    return score > best.score ? {index, score} : best;
+  }, {index: open[0], score: -Infinity}).index;
+}
+
+function randomMove(open) {
+  return open[Math.floor(Math.random() * open.length)];
+}
+
+function evaluatePosition(mark, depth, alpha, beta) {
+  const line = winningLine();
+  if (line) return board[line[0]] === mark ? 10000 + depth : -10000 - depth;
+  if (board.every(Boolean)) return 0;
+  const next = mark === 'O' ? 'X' : 'O';
+  if (depth === 0) {
+    return lines.reduce((score, line) => {
+      const own = line.filter(index => board[index] === mark).length;
+      const other = line.filter(index => board[index] === next).length;
+      return score + (other === 0 ? [0, 1, 12][own] : 0)
+        - (own === 0 ? [0, 1, 12][other] : 0);
+    }, 0);
+  }
+
+  let best = -Infinity;
+  for (let index = 0; index < board.length; index++) {
+    if (board[index]) continue;
+    board[index] = mark;
+    const score = -evaluatePosition(next, depth - 1, -beta, -alpha);
+    board[index] = '';
+    best = Math.max(best, score);
+    alpha = Math.max(alpha, best);
+    if (alpha >= beta) break;
+  }
+  return best;
+}
+
+function startRound() {
+  clearTimeout(timer);
+  board = Array(variant === 'classic' ? 9 : 27).fill('');
+  turn = starter;
+  result = null;
+  render();
+  scheduleComputerMove();
+}
+
+function startSeries() {
+  starter = 'X';
+  scores = {X: 0n, O: 0n, draw: 0n};
+  startRound();
+}
+
+function showMenu() {
+  get('variant').value = variant;
+  get('opponent').value = mode;
+  get('level').value = level;
+  updateSetup();
+  get('game-screen').hidden = true;
+  get('setup-screen').hidden = false;
+  get('variant').focus();
+}
+
+function updateSetup() {
+  get('difficulty').hidden = get('opponent').value !== 'computer';
+  const unchanged = get('variant').value === variant && get('opponent').value === mode
+    && (mode !== 'computer' || get('level').value === level);
+  get('play').textContent = hasPlayed && unchanged ? 'Continuar partida' : 'Jogar';
+}
+
+let hasPlayed = false;
+get('menu').addEventListener('click', showMenu);
+get('setup-form').addEventListener('change', updateSetup);
+get('setup-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const selectedVariant = get('variant').value;
+  const selectedMode = get('opponent').value;
+  const selectedLevel = selectedMode === 'computer' ? get('level').value : level;
+  if (selectedVariant !== variant || selectedMode !== mode || selectedLevel !== level) {
+    if (!confirmSeriesChange()) return;
+    variant = selectedVariant;
+    mode = selectedMode;
+    level = selectedLevel;
+    lines = variant === 'classic' ? classicLines : cubeLines;
+    startSeries();
+  }
+  hasPlayed = true;
+  get('setup-screen').hidden = true;
+  get('game-screen').hidden = false;
+  get('rules').focus();
+});
+
+function confirmSeriesChange() {
+  const hasProgress = board.some(Boolean) || Object.values(scores).some(Boolean);
+  return !hasProgress || confirm('Começar uma nova série com o placar zerado?');
+}
+get('next').addEventListener('click', () => {
+  if (!result) return;
+  if (mode === 'computer') starter = starter === 'X' ? 'O' : 'X';
+  startRound();
+});
+get('reset').addEventListener('click', () => {
+  if (confirmSeriesChange()) startSeries();
+});
+startSeries();
+</script>
+</html>
