@@ -6,11 +6,19 @@
 <title>Jogo da velha</title>
 <style>
 *{box-sizing:border-box}
-:root{color-scheme:dark;--bg:#171820;--panel:#22242f;--line:#3c3e4c;--x:#65cfff;--o:#ffab92;color:#faf9f3;font:1rem system-ui,sans-serif}
+:root{color-scheme:dark;--bg:#171820;--panel:#22242f;--line:#3c3e4c;--x:#65cfff;--on-accent:#10202b;--win:#26394b;--o:#ffab92;color:#faf9f3;font:1rem system-ui,sans-serif}
 body{margin:0;background:radial-gradient(ellipse at top,#272b3a,var(--bg) 55%);min-height:100svh;display:grid;place-items:center;padding:24px 16px}
 main{width:min(100%,760px)}
 h1{text-align:center;font-size:clamp(2.6rem,10vw,4rem);letter-spacing:-.09em;line-height:1;margin:0 0 22px}
 button{font:inherit;font-weight:650;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:10px;cursor:pointer}
+body[data-theme="fire"]{--bg:#200a0d;--panel:#36171c;--line:#794047;--x:#ff777b;--o:#ffd39e;--on-accent:#2b0c10;--win:#60262c;background:radial-gradient(ellipse at top,#451b23,var(--bg) 66%)}
+main{position:relative;z-index:1}
+.fire{display:none;position:fixed;inset:0;overflow:hidden;pointer-events:none}
+body[data-theme="fire"] .fire{display:block;background:radial-gradient(ellipse 65% 33% at 50% 105%,#ca391b,transparent)}
+.flame{position:absolute;left:var(--left);bottom:-10vh;width:clamp(45px,12vw,200px);height:var(--height);transform:rotate(var(--tilt));transform-origin:bottom center;border-radius:82% 12% 65% 36%;background:radial-gradient(ellipse at 54% 89%,#ffdb8b 4%,#ff833e 28%,#ce3825 56%,#8f2228 75%,transparent 84%);opacity:.65}
+body[data-theme="fire"] .cell:not(:disabled):hover{background:#542730}
+body[data-theme="fire"] .score{background:#32161b}
+body[data-theme="fire"] .rules{color:#ffdfd9}
 button:focus-visible{outline:3px solid white;outline-offset:3px}
 button:disabled{cursor:default}
 .menu-options,.actions,.scores{display:grid;gap:8px}
@@ -21,7 +29,7 @@ button:disabled{cursor:default}
 .game-menu label{display:block;margin-bottom:6px;font-size:.9rem}
 .menu-options>*{min-width:0}
 #setup-screen{max-width:480px;margin-inline:auto}
-#play{width:100%;padding:12px;margin-top:12px;background:var(--x);color:#10202b;border-color:var(--x)}
+#play{width:100%;padding:12px;margin-top:12px;background:var(--x);color:var(--on-accent);border-color:var(--x)}
 .game-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .game-header .rules{margin:0}
 #menu{padding:7px 12px}
@@ -43,11 +51,25 @@ select{width:100%;font:inherit;color:inherit;background:var(--panel);border:1px 
 .rules{color:#d1d2da;line-height:1.4}
 .cell{aspect-ratio:1;display:grid;place-items:center;font-size:clamp(1rem,5vw,3rem);line-height:1}
 .cell:not(:disabled):hover{background:#353949}
-.cell.win{background:#26394b;border-color:currentColor}
+.cell.win{background:var(--win);border-color:currentColor}
 .actions{margin-top:14px}
-#next{background:var(--x);color:#10202b;border-color:var(--x)}
+#next{background:var(--x);color:var(--on-accent);border-color:var(--x)}
 #next:disabled{background:var(--panel);color:#aaaab6;border-color:var(--line)}
 </style>
+<div class="fire" aria-hidden="true">
+<i class="flame" style="--left:-5%;--height:40vh;--tilt:23deg"></i>
+<i class="flame" style="--left:3%;--height:28vh;--tilt:-21deg"></i>
+<i class="flame" style="--left:11%;--height:36vh;--tilt:24deg"></i>
+<i class="flame" style="--left:20%;--height:24vh;--tilt:-15deg"></i>
+<i class="flame" style="--left:29%;--height:32vh;--tilt:18deg"></i>
+<i class="flame" style="--left:39%;--height:23vh;--tilt:-24deg"></i>
+<i class="flame" style="--left:47%;--height:30vh;--tilt:21deg"></i>
+<i class="flame" style="--left:57%;--height:25vh;--tilt:-21deg"></i>
+<i class="flame" style="--left:65%;--height:34vh;--tilt:18deg"></i>
+<i class="flame" style="--left:75%;--height:29vh;--tilt:-18deg"></i>
+<i class="flame" style="--left:83%;--height:43vh;--tilt:26deg"></i>
+<i class="flame" style="--left:94%;--height:35vh;--tilt:-21deg"></i>
+</div>
 <main>
 <h1>Jogo da velha</h1>
 <section id="setup-screen" aria-label="Menu do jogo">
@@ -287,6 +309,7 @@ function showMenu() {
 }
 
 function updateSetup() {
+  document.body.dataset.theme = get('variant').value === 'cube' ? 'fire' : 'blue';
   get('difficulty').hidden = get('opponent').value !== 'computer';
   const unchanged = get('variant').value === variant && get('opponent').value === mode
     && (mode !== 'computer' || get('level').value === level);
