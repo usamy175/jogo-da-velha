@@ -61,6 +61,14 @@ select{width:100%;font:inherit;color:inherit;background:var(--panel);border:1px 
 .actions{margin-top:14px}
 #next{background:var(--x);color:var(--on-accent);border-color:var(--x)}
 #next:disabled{background:var(--panel);color:#aaaab6;border-color:var(--line)}
+.snow{position:fixed;inset:0;overflow:hidden;pointer-events:none;color:#c8ecff}
+body[data-theme="fire"] .snow{display:none}
+.snowflake{position:absolute;top:0;left:var(--left);font-size:var(--size);opacity:.65;line-height:1;animation:snowfall var(--duration) linear var(--delay) infinite}
+@keyframes snowfall{
+  from{transform:translate3d(0,-2rem,0) rotate(0deg)}
+  to{transform:translate3d(var(--drift),calc(100vh + 2rem),0) rotate(240deg)}
+}
+@media (prefers-reduced-motion:reduce){.snow{display:none}}
 </style>
 <div class="fire" aria-hidden="true">
 <i class="flame" style="--left:-5%;--height:40vh;--tilt:23deg;--duration:2.6s;--delay:-0.00s"></i>
@@ -75,6 +83,30 @@ select{width:100%;font:inherit;color:inherit;background:var(--panel);border:1px 
 <i class="flame" style="--left:75%;--height:29vh;--tilt:-18deg;--duration:3.2s;--delay:-1.23s"></i>
 <i class="flame" style="--left:83%;--height:43vh;--tilt:26deg;--duration:2.3s;--delay:-1.70s"></i>
 <i class="flame" style="--left:94%;--height:35vh;--tilt:-21deg;--duration:3.6s;--delay:-2.17s"></i>
+</div>
+<div class="snow" aria-hidden="true">
+<span class="snowflake" style="--left:0%;--size:9px;--duration:9s;--delay:-0s;--drift:-14px">❄</span>
+<span class="snowflake" style="--left:4.65%;--size:16px;--duration:12s;--delay:-1.7s;--drift:21px">❄</span>
+<span class="snowflake" style="--left:9.3%;--size:10px;--duration:15s;--delay:-3.4s;--drift:-28px">❄</span>
+<span class="snowflake" style="--left:13.95%;--size:17px;--duration:18s;--delay:-5.1s;--drift:35px">❄</span>
+<span class="snowflake" style="--left:18.6%;--size:11px;--duration:11s;--delay:-6.8s;--drift:-42px">❄</span>
+<span class="snowflake" style="--left:23.25%;--size:18px;--duration:14s;--delay:-8.5s;--drift:19px">❄</span>
+<span class="snowflake" style="--left:27.90%;--size:12px;--duration:17s;--delay:-10.2s;--drift:-26px">❄</span>
+<span class="snowflake" style="--left:32.55%;--size:19px;--duration:10s;--delay:-11.9s;--drift:33px">❄</span>
+<span class="snowflake" style="--left:37.2%;--size:13px;--duration:13s;--delay:-0.5999999999999996s;--drift:-40px">❄</span>
+<span class="snowflake" style="--left:41.85%;--size:20px;--duration:16s;--delay:-2.299999999999999s;--drift:17px">❄</span>
+<span class="snowflake" style="--left:46.5%;--size:14px;--duration:9s;--delay:-4s;--drift:-24px">❄</span>
+<span class="snowflake" style="--left:51.15%;--size:21px;--duration:12s;--delay:-5.699999999999999s;--drift:31px">❄</span>
+<span class="snowflake" style="--left:55.80%;--size:15px;--duration:15s;--delay:-7.399999999999999s;--drift:-38px">❄</span>
+<span class="snowflake" style="--left:60.45%;--size:9px;--duration:18s;--delay:-9.099999999999998s;--drift:15px">❄</span>
+<span class="snowflake" style="--left:65.10%;--size:16px;--duration:11s;--delay:-10.8s;--drift:-22px">❄</span>
+<span class="snowflake" style="--left:69.75%;--size:10px;--duration:14s;--delay:-12.5s;--drift:29px">❄</span>
+<span class="snowflake" style="--left:74.4%;--size:17px;--duration:17s;--delay:-1.1999999999999993s;--drift:-36px">❄</span>
+<span class="snowflake" style="--left:79.05%;--size:11px;--duration:10s;--delay:-2.8999999999999986s;--drift:43px">❄</span>
+<span class="snowflake" style="--left:83.7%;--size:18px;--duration:13s;--delay:-4.599999999999998s;--drift:-20px">❄</span>
+<span class="snowflake" style="--left:88.35%;--size:12px;--duration:16s;--delay:-6.299999999999997s;--drift:27px">❄</span>
+<span class="snowflake" style="--left:93%;--size:19px;--duration:9s;--delay:-8s;--drift:-34px">❄</span>
+<span class="snowflake" style="--left:97.65%;--size:13px;--duration:12s;--delay:-9.699999999999996s;--drift:41px">❄</span>
 </div>
 <main>
 <h1>Jogo da velha</h1>
