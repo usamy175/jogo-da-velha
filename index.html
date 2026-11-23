@@ -15,7 +15,13 @@ body[data-theme="fire"]{--bg:#200a0d;--panel:#36171c;--line:#794047;--x:#ff777b;
 main{position:relative;z-index:1}
 .fire{display:none;position:fixed;inset:0;overflow:hidden;pointer-events:none}
 body[data-theme="fire"] .fire{display:block;background:radial-gradient(ellipse 65% 33% at 50% 105%,#ca391b,transparent)}
-.flame{position:absolute;left:var(--left);bottom:-10vh;width:clamp(45px,12vw,200px);height:var(--height);transform:rotate(var(--tilt));transform-origin:bottom center;border-radius:82% 12% 65% 36%;background:radial-gradient(ellipse at 54% 89%,#ffdb8b 4%,#ff833e 28%,#ce3825 56%,#8f2228 75%,transparent 84%);opacity:.65}
+.flame{position:absolute;left:var(--left);bottom:-10vh;width:clamp(45px,12vw,200px);height:var(--height);transform:rotate(var(--tilt));transform-origin:bottom center;border-radius:82% 12% 65% 36%;background:radial-gradient(ellipse at 54% 89%,#ffdb8b 4%,#ff833e 28%,#ce3825 56%,#8f2228 75%,transparent 84%);opacity:.65;animation:flicker var(--duration) ease-in-out var(--delay) infinite alternate}
+@keyframes flicker {
+  0% {transform:translate(-5%,5%) rotate(calc(var(--tilt) - 6deg)) scale(.9,.82);opacity:.45}
+  45% {transform:translate(4%,-2%) rotate(calc(var(--tilt) + 7deg)) scale(1,1.09);opacity:.72}
+  100% {transform:translate(-2%,-6%) rotate(calc(var(--tilt) - 3deg)) scale(.95,1.2);opacity:.58}
+}
+@media (prefers-reduced-motion:reduce){.flame{animation:none}}
 body[data-theme="fire"] .cell:not(:disabled):hover{background:#542730}
 body[data-theme="fire"] .score{background:#32161b}
 body[data-theme="fire"] .rules{color:#ffdfd9}
@@ -57,18 +63,18 @@ select{width:100%;font:inherit;color:inherit;background:var(--panel);border:1px 
 #next:disabled{background:var(--panel);color:#aaaab6;border-color:var(--line)}
 </style>
 <div class="fire" aria-hidden="true">
-<i class="flame" style="--left:-5%;--height:40vh;--tilt:23deg"></i>
-<i class="flame" style="--left:3%;--height:28vh;--tilt:-21deg"></i>
-<i class="flame" style="--left:11%;--height:36vh;--tilt:24deg"></i>
-<i class="flame" style="--left:20%;--height:24vh;--tilt:-15deg"></i>
-<i class="flame" style="--left:29%;--height:32vh;--tilt:18deg"></i>
-<i class="flame" style="--left:39%;--height:23vh;--tilt:-24deg"></i>
-<i class="flame" style="--left:47%;--height:30vh;--tilt:21deg"></i>
-<i class="flame" style="--left:57%;--height:25vh;--tilt:-21deg"></i>
-<i class="flame" style="--left:65%;--height:34vh;--tilt:18deg"></i>
-<i class="flame" style="--left:75%;--height:29vh;--tilt:-18deg"></i>
-<i class="flame" style="--left:83%;--height:43vh;--tilt:26deg"></i>
-<i class="flame" style="--left:94%;--height:35vh;--tilt:-21deg"></i>
+<i class="flame" style="--left:-5%;--height:40vh;--tilt:23deg;--duration:2.6s;--delay:-0.00s"></i>
+<i class="flame" style="--left:3%;--height:28vh;--tilt:-21deg;--duration:3.2s;--delay:-0.47s"></i>
+<i class="flame" style="--left:11%;--height:36vh;--tilt:24deg;--duration:2.3s;--delay:-0.94s"></i>
+<i class="flame" style="--left:20%;--height:24vh;--tilt:-15deg;--duration:3.6s;--delay:-1.41s"></i>
+<i class="flame" style="--left:29%;--height:32vh;--tilt:18deg;--duration:2.6s;--delay:-1.88s"></i>
+<i class="flame" style="--left:39%;--height:23vh;--tilt:-24deg;--duration:3.2s;--delay:-2.35s"></i>
+<i class="flame" style="--left:47%;--height:30vh;--tilt:21deg;--duration:2.3s;--delay:-2.82s"></i>
+<i class="flame" style="--left:57%;--height:25vh;--tilt:-21deg;--duration:3.6s;--delay:-0.29s"></i>
+<i class="flame" style="--left:65%;--height:34vh;--tilt:18deg;--duration:2.6s;--delay:-0.76s"></i>
+<i class="flame" style="--left:75%;--height:29vh;--tilt:-18deg;--duration:3.2s;--delay:-1.23s"></i>
+<i class="flame" style="--left:83%;--height:43vh;--tilt:26deg;--duration:2.3s;--delay:-1.70s"></i>
+<i class="flame" style="--left:94%;--height:35vh;--tilt:-21deg;--duration:3.6s;--delay:-2.17s"></i>
 </div>
 <main>
 <h1>Jogo da velha</h1>
