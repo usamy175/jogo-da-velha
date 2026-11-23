@@ -9,7 +9,7 @@
 :root{color-scheme:dark;--bg:#171820;--panel:#22242f;--line:#3c3e4c;--x:#65cfff;--o:#ffab92;color:#faf9f3;font:1rem system-ui,sans-serif}
 body{margin:0;background:radial-gradient(ellipse at top,#272b3a,var(--bg) 55%);min-height:100svh;display:grid;place-items:center;padding:24px 16px}
 main{width:min(100%,760px)}
-h1{font-size:clamp(2.6rem,10vw,4rem);letter-spacing:-.09em;line-height:1;margin:0 0 22px}
+h1{text-align:center;font-size:clamp(2.6rem,10vw,4rem);letter-spacing:-.09em;line-height:1;margin:0 0 22px}
 button{font:inherit;font-weight:650;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:10px;cursor:pointer}
 button:focus-visible{outline:3px solid white;outline-offset:3px}
 button:disabled{cursor:default}
@@ -20,7 +20,7 @@ button:disabled{cursor:default}
 .game-menu legend{padding:0 6px;font-weight:650}
 .game-menu label{display:block;margin-bottom:6px;font-size:.9rem}
 .menu-options>*{min-width:0}
-#setup-screen{max-width:480px}
+#setup-screen{max-width:480px;margin-inline:auto}
 #play{width:100%;padding:12px;margin-top:12px;background:var(--x);color:#10202b;border-color:var(--x)}
 .game-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .game-header .rules{margin:0}
